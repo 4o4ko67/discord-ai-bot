@@ -120,6 +120,73 @@ class AIResponseGenerator:
             logger.error(f"Error generating AI response: {e}")
             return "Sorry, I'm having trouble responding right now. Please try again later."
 
+async def handle_counting_message(message):
+    """Handle counting game when someone types just a number"""
+    try:
+        number = int(message.content.strip())
+        guild_id = message.guild.id if message.guild else 0
+        
+        # Initialize counting game if not exists
+        if guild_id not in counting_data:
+            if number == 1:
+                counting_data[guild_id] = {
+                    'current_number': 1,
+                    'last_user_id': message.author.id,
+                    'channel_id': message.channel.id
+                }
+                await message.add_reaction("✅")
+                await message.reply(f"🎉 **Counting Game Started!** {message.author.mention} started with **1**\nNext person should type **2**")
+                return
+            else:
+                await message.add_reaction("❌")
+                await message.reply("❌ Start counting from **1** to begin the game!")
+                return
+        
+        current_data = counting_data[guild_id]
+        expected_number = current_data['current_number'] + 1
+        
+        # Check if it's the same user trying to count twice in a row
+        if current_data['last_user_id'] == message.author.id:
+            await message.add_reaction("❌")
+            await message.reply(f"❌ {message.author.mention} You can't count twice in a row! Let someone else continue.")
+            return
+        
+        # Check if the number is correct
+        if number != expected_number:
+            await message.add_reaction("❌")
+            await message.reply(f"❌ Wrong number! Expected **{expected_number}**, but got **{number}**.\n💥 **Game Over!** Counting restarted. Type **1** to start over.")
+            # Reset counting
+            counting_data[guild_id] = {
+                'current_number': 0,
+                'last_user_id': 0,
+                'channel_id': message.channel.id
+            }
+            return
+        
+        # Correct number! Update the count
+        counting_data[guild_id]['current_number'] = number
+        counting_data[guild_id]['last_user_id'] = message.author.id
+        
+        # Add reaction and send response based on milestone
+        await message.add_reaction("✅")
+        
+        if number % 100 == 0:
+            await message.reply(f"🎊 **AMAZING!** {message.author.mention} reached **{number}**! 🎊\nNext: **{number + 1}**")
+        elif number % 50 == 0:
+            await message.reply(f"🌟 **Fantastic!** {message.author.mention} counted **{number}**! 🌟\nNext: **{number + 1}**")
+        elif number % 25 == 0:
+            await message.reply(f"⭐ **Great job!** {message.author.mention} counted **{number}**!\nNext: **{number + 1}**")
+        elif number % 10 == 0:
+            await message.reply(f"✨ {message.author.mention} counted **{number}**!\nNext: **{number + 1}**")
+        else:
+            # For regular numbers, just react without reply to avoid spam
+            if number <= 5:  # Give encouragement for first few numbers
+                await message.reply(f"✅ {message.author.mention} counted **{number}**! Next: **{number + 1}**")
+            
+    except ValueError:
+        # Not a valid number, ignore
+        pass
+
 @bot.event
 async def on_ready():
     """Bot startup event"""
@@ -147,6 +214,11 @@ async def on_message(message):
     
     # Process commands first
     await bot.process_commands(message)
+    
+    # Check for counting game (simple number without command)
+    if message.content.strip().isdigit():
+        await handle_counting_message(message)
+        return
     
     # Check if bot is mentioned or message is a DM
     bot_mentioned = bot.user in message.mentions
@@ -211,6 +283,12 @@ async def help_command(ctx):
     embed.add_field(
         name="🔧 Commands",
         value="`!help` - Show this help message\n`!ping` - Check bot latency\n`!info` - Bot information\n`!chat [message]` - Chat with AI using command\n`!count [number]` - Start or continue counting game\n`!reset_count` - Reset counting game",
+        inline=False
+    )
+    
+    embed.add_field(
+        name="🔢 Counting Game",
+        value="• Type **1** to start counting\n• Next person types **2**, then **3**, etc.\n• Same person can't count twice in a row\n• Wrong number resets the game",
         inline=False
     )
     
