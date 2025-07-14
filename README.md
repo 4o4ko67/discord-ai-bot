@@ -21,11 +21,11 @@ Installation
 git clone https://github.com/your-username/discord-ai-bot.git
 cd discord-ai-bot
 pip install -r requirements.txt
-
+```
 Configuration
     
 1. Create a .env file or set environment variables:
-DISCORD_TOKEN=your_token_here
+```DISCORD_TOKEN=your_token_here```
 2. Customize your settings in the main script or config file if available.
 
 📦 Features in Detail
@@ -62,4 +62,4 @@ MIT License. See LICENSE for more details.
 
 Maintained by Georgi_4230
 For issues or ideas, feel free to open an issue or pull request.
-https://discord.gg/SN4eKgcDMR
+```https://discord.gg/SN4eKgcDMR```
