@@ -101,16 +101,19 @@ async def on_message(message):
                 logger.warning(f"Failed to timeout user: {e}")
         return
 
+    # Process commands
     await bot.process_commands(message)
 
-    # Skip further checks if it's a command
+    # If it's a command, don't handle it as AI
     if message.content.startswith(BOT_PREFIX):
         return
 
+    # Counting game (if message is a number)
     if message.content.strip().isdigit():
         await handle_counting_message(message)
         return
 
+    # If mentioned or DM, handle AI response
     mentioned = bot.user in message.mentions
     is_dm = isinstance(message.channel, discord.DMChannel)
     if not (mentioned or is_dm):
@@ -169,7 +172,7 @@ async def ticket_command(ctx):
         description="Hello, thank you for choosing RDM! You can contact our support at any time. We are here to help you.",
         color=discord.Color.blurple()
     )
-    embed.set_image(url="https://i.imgur.com/0uNL7i9.png")  # Replace with your hosted image URL
+    embed.set_image(url="https://i.imgur.com/0uNL7i9.png")  # Custom ticket image
     embed.set_footer(text="Powered by RDM Support System")
     await ctx.send(embed=embed, view=TicketView())
 
