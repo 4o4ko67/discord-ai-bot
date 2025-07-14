@@ -103,6 +103,10 @@ async def on_message(message):
 
     await bot.process_commands(message)
 
+    # Skip further checks if it's a command
+    if message.content.startswith(BOT_PREFIX):
+        return
+
     if message.content.strip().isdigit():
         await handle_counting_message(message)
         return
