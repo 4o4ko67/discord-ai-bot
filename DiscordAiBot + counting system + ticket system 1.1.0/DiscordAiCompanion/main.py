@@ -158,6 +158,19 @@ async def handle_counting_message(message):
     data['last_user_id'] = message.author.id
     await message.add_reaction("✅")
 
+@bot.command(name="ticket")
+async def ticket_command(ctx):
+    embed = discord.Embed(
+        title="📩 Contact support!",
+        description="Hello, thank you for choosing RDM! You can contact our support at any time. We are here to help you.",
+        color=discord.Color.blurple()
+    )
+    embed.set_image(url="https://i.imgur.com/YOUR_IMAGE.png")  # Replace with your hosted image URL
+    embed.set_footer(text="Powered by RDM Support System")
+    await ctx.send(embed=embed, view=TicketView())
+
+@bot.event
+async def on_interaction(interaction: discord.Interaction):
     ticket_types = {
         "ticket_partnership": "partnership",
         "ticket_purchase": "purchase",
