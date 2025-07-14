@@ -200,7 +200,7 @@ async def on_interaction(interaction: discord.Interaction):
     await interaction.response.send_message(f"✅ Ticket created: {channel.mention}", ephemeral=True)
     await channel.send(embed=discord.Embed(
         title=f"🎫 Ticket - {ticket_types[cid].title()}",
-description=f"{user.mention}, thanks for contacting support!\nType `!close` to close this ticket.",
+description=f"{user.mention}, thanks for contacting support! Type `!close` to close this ticket.",
 Type `!close` to close this ticket.",
         color=discord.Color.green()
     ))
