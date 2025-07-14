@@ -14,6 +14,7 @@ A powerful and customizable Discord bot built with Python. This bot includes AI 
 🚀 Getting Started
 
 Prerequisites
+
     •    Python 3.8+
     •    A Discord bot token
     •    ```discord.py``` or a fork like ```py-cord```
