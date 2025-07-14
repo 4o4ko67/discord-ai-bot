@@ -149,7 +149,7 @@ async def ticket_command(ctx):
         description="Hello, thank you for choosing RDM! You can contact our support at any time. We are here to help you.",
         color=discord.Color.blurple()
     )
-    embed.set_image(url="https://i.imgur.com/V6G10ZD.png")
+    embed.set_image(url="https://imgur.com/a/6KEKUCH")
     embed.set_footer(text="Powered by RDM Support System")
     await ctx.send(embed=embed, view=TicketView())
 
