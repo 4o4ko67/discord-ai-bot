@@ -100,10 +100,27 @@ class TicketSystem:
             color=0x5865F2
         )
         
-        embed.set_image(url="https://i.imgur.com/8pTSdtO.png")  # Cute cloud illustration
+        # Using the knight support image
+        embed.set_image(url="https://i.imgur.com/placeholder.png")  # Will be replaced with file attachment
         embed.set_footer(text="Powered by RDM Support System")
         
         return embed
+    
+    @staticmethod
+    async def send_ticket_panel(ctx):
+        """Send ticket panel with knight image"""
+        embed = TicketSystem.create_ticket_embed()
+        view = TicketSystem.create_ticket_buttons()
+        
+        # Send with the knight image file
+        try:
+            file = discord.File("knight_support.png", filename="knight_support.png")
+            embed.set_image(url="attachment://knight_support.png")
+            await ctx.send(file=file, embed=embed, view=view)
+        except FileNotFoundError:
+            # Fallback without image
+            embed.set_image(url="")
+            await ctx.send(embed=embed, view=view)
     
     @staticmethod
     def create_ticket_buttons():
@@ -410,10 +427,7 @@ async def ticket_command(ctx):
         await ctx.send("❌ You need administrator permissions to use this command.")
         return
     
-    embed = TicketSystem.create_ticket_embed()
-    view = TicketSystem.create_ticket_buttons()
-    
-    await ctx.send(embed=embed, view=view)
+    await TicketSystem.send_ticket_panel(ctx)
 
 @bot.command(name="close")
 async def close_ticket_command(ctx):
