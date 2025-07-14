@@ -3,6 +3,7 @@
 A powerful and customizable Discord bot built with Python. This bot includes AI capabilities and now features a ticket support system and a counting game system to enhance your server engagement and moderation.
 
 ✨ Features
+
 🎫 Ticket System – Easily manage support requests through private ticket channels.
 🔢 Counting System – Fun counting game with real-time validation.
 🤖 AI Integration – Smart responses powered by AI (customizable).
