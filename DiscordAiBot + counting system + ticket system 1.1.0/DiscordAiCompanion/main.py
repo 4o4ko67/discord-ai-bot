@@ -131,8 +131,9 @@ async def on_message(message):
         data['current_number'] = number
         data['last_user_id'] = message.author.id
         await message.add_reaction("✅")
-    except ValueError:
-        pass
+   number = int(message.content.strip())
+except ValueError:
+    pass
 
 @bot.command(name="help")
 async def help_command(ctx):
