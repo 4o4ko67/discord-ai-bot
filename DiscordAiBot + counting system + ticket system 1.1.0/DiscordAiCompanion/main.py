@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Lightweight Discord AI Bot with Ticket System
@@ -198,12 +197,12 @@ async def on_interaction(interaction: discord.Interaction):
     name = f"ticket-{ticket_types[cid]}-{user.name}".lower().replace(" ", "-")
     channel = await guild.create_text_channel(name=name, category=category, overwrites=overwrites, topic=f"Ticket by {user.id}")
     await interaction.response.send_message(f"✅ Ticket created: {channel.mention}", ephemeral=True)
-await channel.send(embed=discord.Embed(
-    title=f"🎫 Ticket - {ticket_types[cid].title()}",
-    description=f"{user.mention}, thanks for contacting support! Type `!close` to close this ticket.",
-    color=discord.Color.green()
-))
-
+    embed = discord.Embed(
+        title=f"🎫 Ticket - {ticket_types[cid].title()}",
+        description=f"{user.mention}, thanks for contacting support! Type `!close` to close this ticket.",
+        color=discord.Color.green()
+    )
+    await channel.send(embed=embed)
 
 @bot.command(name="close")
 async def close_ticket(ctx):
