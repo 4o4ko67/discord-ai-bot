@@ -1,4 +1,5 @@
 🤖 Discord AI Bot
+
 A powerful and customizable Discord bot built with Python. This bot includes AI capabilities and now features a ticket support system and a counting game system to enhance your server engagement and moderation.
 
 ✨ Features
