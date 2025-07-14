@@ -119,6 +119,7 @@ async def on_message(message):
             return
         response = await AIResponseGenerator.generate_response(clean, message.author.display_name)
         await message.reply(response, mention_author=False)
+        
         data = counting_data[gid]
         if data['last_user_id'] == message.author.id:
             await message.reply("❌ You can't count twice in a row!")
