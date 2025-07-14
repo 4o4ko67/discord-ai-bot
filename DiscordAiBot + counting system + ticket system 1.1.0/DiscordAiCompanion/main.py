@@ -102,16 +102,20 @@ async def on_message(message):
         return
 
     await bot.process_commands(message)
+
     if message.content.strip().isdigit():
         await handle_counting_message(message)
         return
+
     mentioned = bot.user in message.mentions
     is_dm = isinstance(message.channel, discord.DMChannel)
     if not (mentioned or is_dm):
         return
+
     if RateLimiter.is_rate_limited(message.author.id):
         await message.reply("⏰ You're sending messages too fast. Please wait.", mention_author=False)
         return
+
     async with message.channel.typing():
         clean = message.content.replace(f"<@{bot.user.id}>", "").replace(f"<@!{bot.user.id}>", "").strip()
         if not clean:
@@ -119,44 +123,41 @@ async def on_message(message):
             return
         response = await AIResponseGenerator.generate_response(clean, message.author.display_name)
         await message.reply(response, mention_author=False)
-        
-        data = counting_data[gid]
-        if data['last_user_id'] == message.author.id:
-            await message.reply("❌ You can't count twice in a row!")
+
+async def handle_counting_message(message):
+    try:
+        number = int(message.content.strip())
+    except ValueError:
+        return
+
+    gid = message.guild.id
+    if gid not in counting_data:
+        if number == 1:
+            counting_data[gid] = {
+                'current_number': 1,
+                'last_user_id': message.author.id,
+                'channel_id': message.channel.id
+            }
+            await message.reply(f"🎉 Game Started! {message.author.mention} typed 1. Next: 2")
             return
-        if number != data['current_number'] + 1:
-            await message.reply(f"❌ Wrong number! Expected {data['current_number'] + 1}. Restarting from 1.")
-            counting_data[gid] = {'current_number': 0, 'last_user_id': 0, 'channel_id': message.channel.id}
+        else:
+            await message.reply("❌ Start with 1 to begin the game!")
             return
-        data['current_number'] = number
-        data['last_user_id'] = message.author.id
-        await message.add_reaction("✅")
-   number = int(message.content.strip())
-except ValueError:
-    pass
 
-@bot.command(name="help")
-async def help_command(ctx):
-    embed = discord.Embed(title="🤖 AI Bot Help", description="Chat with the AI, play counting, and open tickets.", color=0x00ff00)
-    embed.add_field(name="🧠 AI Chat", value="Mention the bot or DM to talk.\nUse `!chat Hello`", inline=False)
-    embed.add_field(name="🔢 Counting", value="Start with `1` in a channel to play counting game.", inline=False)
-    embed.add_field(name="🎫 Tickets", value="Use `!ticket` to open support panel.\nClick a button to open a ticket.", inline=False)
-    embed.set_footer(text="Developed by georgi_4230")
-    await ctx.send(embed=embed)
+    data = counting_data[gid]
+    if data['last_user_id'] == message.author.id:
+        await message.reply("❌ You can't count twice in a row!")
+        return
 
-@bot.command(name="ticket")
-async def ticket_command(ctx):
-    embed = discord.Embed(
-        title="📩 Contact support!",
-        description="Hello, thank you for choosing RDM! You can contact our support at any time. We are here to help you.",
-        color=discord.Color.blurple()
-    )
-    embed.set_image(url="https://imgur.com/a/6KEKUCH")
-    embed.set_footer(text="Powered by RDM Support System")
-    await ctx.send(embed=embed, view=TicketView())
+    if number != data['current_number'] + 1:
+        await message.reply(f"❌ Wrong number! Expected {data['current_number'] + 1}. Restarting from 1.")
+        counting_data[gid] = {'current_number': 0, 'last_user_id': 0, 'channel_id': message.channel.id}
+        return
 
-@bot.event
-async def on_interaction(interaction: discord.Interaction):
+    data['current_number'] = number
+    data['last_user_id'] = message.author.id
+    await message.add_reaction("✅")
+
     ticket_types = {
         "ticket_partnership": "partnership",
         "ticket_purchase": "purchase",
