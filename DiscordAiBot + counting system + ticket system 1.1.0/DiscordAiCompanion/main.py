@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Lightweight Discord AI Bot with Ticket System
-Includes AI responses (Google Gemini), counting game, and support ticket panel.
+Includes AI responses (Google Gemini), counting game, ticket panel, and auto-timeout for Discord invite links.
 """
 
 import os
@@ -26,6 +26,7 @@ MAX_MESSAGE_LENGTH = 2000
 RATE_LIMIT_REQUESTS = 10
 RATE_LIMIT_WINDOW = 60
 TICKET_CATEGORY_NAME = "Support Tickets"
+INVITE_PATTERNS = ["discord.gg/", "discord.com/invite/", "discordapp.com/invite/"]
 
 if not DISCORD_TOKEN:
     logger.error("DISCORD_TOKEN environment variable is required")
@@ -88,6 +89,18 @@ async def on_ready():
 async def on_message(message):
     if message.author.bot or message.author == bot.user:
         return
+
+    # Invite link detection
+    if any(pattern in message.content.lower() for pattern in INVITE_PATTERNS):
+        if not message.author.guild_permissions.administrator:
+            try:
+                await message.delete()
+                await message.author.timeout(duration=604800, reason="Posted Discord invite link")
+                await message.channel.send(f"🚫 {message.author.mention} has been timed out for 7 days for sharing an invite link.")
+            except Exception as e:
+                logger.warning(f"Failed to timeout user: {e}")
+        return
+
     await bot.process_commands(message)
     if message.content.strip().isdigit():
         await handle_counting_message(message)
@@ -106,19 +119,6 @@ async def on_message(message):
             return
         response = await AIResponseGenerator.generate_response(clean, message.author.display_name)
         await message.reply(response, mention_author=False)
-
-async def handle_counting_message(message):
-    try:
-        number = int(message.content.strip())
-        gid = message.guild.id
-        if gid not in counting_data:
-            if number == 1:
-                counting_data[gid] = {'current_number': 1, 'last_user_id': message.author.id, 'channel_id': message.channel.id}
-                await message.reply(f"🎉 Game Started! {message.author.mention} typed 1. Next: 2")
-                return
-            else:
-                await message.reply("❌ Start with 1 to begin the game!")
-                return
         data = counting_data[gid]
         if data['last_user_id'] == message.author.id:
             await message.reply("❌ You can't count twice in a row!")
